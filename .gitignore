@@ -1,0 +1,7 @@
+__pycache__/
+*.csv
+*.json
+*.sav
+*.pkl
+*.png
+*.xlsx
