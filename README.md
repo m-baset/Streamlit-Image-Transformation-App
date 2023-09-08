@@ -38,5 +38,6 @@ Contrast Streching
 
 Point transformations in image processing are fundamental operations that involve the manipulation of individual pixel values within an image. These transformations typically follow a mathematical function or rule that is applied uniformly to each pixel, without considering the surrounding pixels. The primary purpose of point transformations is to enhance, adjust, or modify various visual aspects of an image, such as brightness, contrast, color balance, and more.
 
-## Demo
+## Demos
 
+![Demo](demo.gif)
