@@ -13,7 +13,7 @@ Contrast Streching
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/Streamlit-Image-Transformation-App.git
+   git clone https://github.com/m-baset/Streamlit-Image-Transformation-App.git
 2. Change to the project directory:
 
    ```bash
