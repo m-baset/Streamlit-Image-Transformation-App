@@ -23,8 +23,17 @@ def ReadImageFromURL(img_url, color="gray"):
     return image
 
 def plot_and_save(x_axis, y_axis):
-    plt.plot(x_axis, y_axis)
-    plt.xlabel("Input Pixel")
-    plt.ylabel("Output Pixel")
-    plt.title("Transformation Function")
-    plt.savefig('img/transform.png')
+    plt.plot(x_axis, y_axis);
+    plt.xlabel("Input Pixel");
+    plt.ylabel("Output Pixel");
+    plt.title("Transformation Function");
+    plt.savefig('img/transform.png');
+    plt.close();
+
+def plot_and_save_histogram(img, title):
+    plt.hist(img.flatten(), bins=255);
+    plt.title("Image Histogram");
+    plt.xlabel("Intensity Levels");
+    plt.ylabel("Pixels Count");
+    plt.savefig(f'img/{title}.png');
+    plt.close();

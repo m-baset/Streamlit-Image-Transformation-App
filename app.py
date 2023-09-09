@@ -1,12 +1,11 @@
 import streamlit as st
 import numpy as np
-from utils import ReadImageFromURL, linear_piecewise_mapping, plot_and_save
+from utils import ReadImageFromURL, linear_piecewise_mapping, plot_and_save, plot_and_save_histogram
 from transformations import *
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
-# TODO : Find better name
 st.title("Simple Photo Tweaker")
 
 centered_container = st.empty()
@@ -14,8 +13,11 @@ centered_container = st.empty()
 #### Imaga URL Section ####
 img_url = st.text_input("Enter Image Url")
 if img_url:
+    col1, col2 = st.columns(2)
     original_image = ReadImageFromURL(img_url=img_url, color="gray")
-    st.image(original_image, caption="Original Image")
+    plot_and_save_histogram(original_image, "before")
+    col1.image(original_image, caption="Original Image")
+    col2.image('img/before.png', caption="Original Image Histogram")
 
 #### Select Transformation Section ####
 transformations = ["Contrast Streching", "Piecewise Transformation", 
@@ -30,21 +32,29 @@ if transform_select and img_url:
     if transform_select == "Contrast Streching":
 
         ## Contrast Streching Parameters ##
-        k_cs = st.slider("K", 0.0, 1.0, step=0.01, value=0.5)
-        smoothing_curve = st.slider("Smoothing Level", 0.0, 0.3, step=0.01, value=0.08)
+        high = st.slider("High", 0, 255, step=1, value=255)
+        low = st.slider("Low", 0, 255, step=1, value=0)
         
-        ## Apply Contrast Streching ##
-        transformed_img = contrastStreching(original_image, k_cs, 255, smoothing_curve)
+        ## Apply Contrast Strechtransformed_img = np.clip(transformed_img, 0, 1)ing ##
+        cs_original_img = original_image.astype(np.float32) / 255.0
+        transformed_img = ((cs_original_img - (low/255.0)) / ((high/255.0) - (low/255.0)))
+        transformed_img = np.clip(transformed_img, 0, 1)
+        transformed_img = (transformed_img * 255).astype(np.uint8)
 
-        ## Plot transform function ##
+        ## Plot transform function and histogram##
         x = np.arange(256)
-        plot_and_save(x, contrastStreching(x, k_cs, 255, smoothing_curve))
+        y = ((x - low) / (high - low)) * 255
+        y = np.where((y >= 255), 255, y)
+        y = np.where((y <= 0), 0, y)
+        plot_and_save(x, y)
+        plot_and_save_histogram(transformed_img, "after")
 
         ## Display Image After transformation and transform function ##
         st.write("Results:")
         col1, col2 = st.columns(2)
         col1.image(transformed_img/255, clamp=True, caption="Transformed Image")
         col2.image('img/transform.png', caption="Transformation Curve")
+        st.image('img/after.png', caption="Transformed Image Histogram")
 
     #### Piecewise Transformation ####
     elif transform_select == "Piecewise Transformation":
@@ -78,12 +88,15 @@ if transform_select and img_url:
 
             ## Apply Transformation ##
             transformed_img = piecewiseTransform(original_image, xp, yp)
+            transformed_img = np.clip(transformed_img, 0, 255)
+            plot_and_save_histogram(transformed_img, "after")
 
             ## Display Image After transformation and transform function ##
             st.write("Results:")
             col1, col2 = st.columns(2)
             col1.image(transformed_img/255, clamp=True, caption="Transformed Image")
             col2.image('img/transform.png', caption="Transformation Curve")
+            st.image('img/after.png', caption="Transformed Image Histogram")
 
     #### Log Transform ####
     elif transform_select == "Log Transform":
@@ -97,12 +110,15 @@ if transform_select and img_url:
 
         ## Apply Transformation ##
         transformed_img = c * (np.log(original_image + 1))
+        transformed_img = np.clip(transformed_img, 0, 255)
+        plot_and_save_histogram(transformed_img, "after")
         
         ## Display Image After transformation and transform function ##
         st.write("Results:")
         col1, col2 = st.columns(2)
         col1.image(transformed_img/255, clamp=True, caption="Transformed Image")
         col2.image('img/transform.png', caption="Transformation Curve")
+        st.image('img/after.png', caption="Transformed Image Histogram")
 
     #### Inverse Log Transform ####
     elif transform_select == "Inverse Log Transform":
@@ -116,12 +132,15 @@ if transform_select and img_url:
 
         ## Apply Transformation ##
         transformed_img = np.exp(original_image.astype(np. float128)) ** (1/c) - 1
+        transformed_img = np.clip(transformed_img, 0, 255)
+        plot_and_save_histogram(transformed_img, "after")
 
         ## Display Image After transformation and transform function ##
         st.write("Results:")
         col1, col2 = st.columns(2)
         col1.image(transformed_img/255, clamp=True, caption="Transformed Image")
         col2.image('img/transform.png', caption="Transformation Curve")
+        st.image('img/after.png', caption="Transformed Image Histogram")
 
     #### Binary Threshold ####
     elif transform_select == "Binary Threshold":
@@ -135,12 +154,15 @@ if transform_select and img_url:
 
         ## Apply Transformation ##
         transformed_img = np.where((original_image > k_thr), 255, 0)
+        transformed_img = np.clip(transformed_img, 0, 255)
+        plot_and_save_histogram(transformed_img, "after")
 
         ## Display Image After transformation and transform function ##
         st.write("Results:")
         col1, col2 = st.columns(2)
         col1.image(transformed_img/255, clamp=True, caption="Transformed Image")
         col2.image('img/transform.png', caption="Transformation Curve")
+        st.image('img/after.png', caption="Transformed Image Histogram")
 
     #### Negative Transform ####
     elif transform_select == "Negative":
@@ -151,12 +173,15 @@ if transform_select and img_url:
 
         ## Apply Transformation ##
         transformed_img = 255 - original_image
+        transformed_img = np.clip(transformed_img, 0, 255)
+        plot_and_save_histogram(transformed_img, "after")
 
         ## Display Image After transformation and transform function ##
         st.write("Results:")
         col1, col2 = st.columns(2)
         col1.image(transformed_img/255, clamp=True, caption="Transformed Image")
         col2.image('img/transform.png', caption="Transformation Curve")
+        st.image('img/after.png', caption="Transformed Image Histogram")
 
     #### Gamma Transform ####
     elif transform_select == "Gamma Transform":
@@ -173,12 +198,15 @@ if transform_select and img_url:
         ## Apply Transformation ##
         transformed_img = np.power(original_image / 255.0, gamma) * 255.0  
         transformed_img = np.uint8(transformed_img)
+        transformed_img = np.clip(transformed_img, 0, 255)
+        plot_and_save_histogram(transformed_img, "after")
 
         ## Display Image After transformation and transform function ##
         st.write("Results:")
         col1, col2 = st.columns(2)
         col1.image(transformed_img/255, clamp=True, caption="Transformed Image")
         col2.image('img/transform.png', caption="Transformation Curve"  )
+        st.image('img/after.png', caption="Transformed Image Histogram")
 
     else:
         st.write("Not included Transformation")
